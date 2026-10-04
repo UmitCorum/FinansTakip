@@ -10,16 +10,26 @@ export default {
     container: {
       center: true,
       padding: "1rem",
-      screens: { "2xl": "1360px" },
+      screens: { "2xl": "1320px" },
     },
     extend: {
       fontFamily: {
-        sans: ["Inter", "ui-sans-serif", "system-ui", "sans-serif"],
+        sans: ["Manrope", "ui-sans-serif", "system-ui", "sans-serif"],
+        display: ["Fraunces", "ui-serif", "Georgia", "serif"],
+      },
+      fontSize: {
+        // Klasik tipografik ölçek (12 · 13 · 15 · 18 · 21 · 28 · 44 · 64)
+        micro: ["12px", "16px"],
+        small: ["13px", "18px"],
+        base: ["15px", "24px"],
+        lead: ["18px", "26px"],
+        heading: ["21px", "28px"],
       },
       colors: {
         background: token("background"),
         surface: token("surface"),
         elevated: token("elevated"),
+        note: { DEFAULT: token("note"), line: token("note-line") },
         border: token("border"),
         input: token("border"),
         ring: token("primary"),
@@ -34,13 +44,14 @@ export default {
         },
         primary: {
           DEFAULT: token("primary"),
-          foreground: "rgb(255 255 255 / <alpha-value>)",
+          foreground: token("on-primary"),
         },
         income: token("income"),
         expense: token("expense"),
+        "on-strong": token("on-strong"),
         destructive: {
           DEFAULT: token("expense"),
-          foreground: "rgb(255 255 255 / <alpha-value>)",
+          foreground: token("on-strong"),
         },
         card: {
           DEFAULT: token("surface"),
@@ -52,20 +63,23 @@ export default {
         },
       },
       borderRadius: {
-        lg: "0.75rem",
-        md: "0.5rem",
-        sm: "0.375rem",
+        // Hiyerarşiye göre: banknot 20 · panel 14 · kontrol 10 · küçük 6
+        note: "20px",
+        panel: "14px",
+        xl: "10px",
+        lg: "8px",
+        md: "6px",
+        sm: "4px",
       },
       boxShadow: {
-        card: "0 1px 2px rgb(0 0 0 / 0.04), 0 8px 24px -12px rgb(0 0 0 / 0.18)",
-        lift: "0 2px 4px rgb(0 0 0 / 0.06), 0 18px 40px -16px rgb(0 0 0 / 0.32)",
-        glow: "0 8px 30px -8px rgb(var(--primary) / 0.55)",
+        // Gölge yalnızca yüzen katmanlarda (popover, sheet, dialog)
+        lift: "0 1px 2px rgb(0 0 0 / 0.08), 0 16px 40px -12px rgb(0 0 0 / 0.35)",
       },
       keyframes: {
         "fade-in": { from: { opacity: "0" }, to: { opacity: "1" } },
       },
       animation: {
-        "fade-in": "fade-in 0.3s ease-out",
+        "fade-in": "fade-in 0.2s ease-out",
       },
     },
   },

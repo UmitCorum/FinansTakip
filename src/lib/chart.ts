@@ -11,6 +11,6 @@ export function markOpacity(active: string | null, name: string, dimmed = 0.3): 
 }
 
 export const SERIES_COLORS = {
-  income: "#22C55E",
-  expense: "#F43F5E",
+  income: "#3E9A62",
+  expense: "#C8493E",
 } as const;

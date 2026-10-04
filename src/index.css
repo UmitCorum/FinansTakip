@@ -2,32 +2,44 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Tema token'ları — değerler "R G B" kanalları olarak tutulur (opaklık desteği için) */
+/*
+ * Tema token'ları — "R G B" kanalları (opaklık desteği için).
+ * Yön: Türk lirası banknotu. Açık tema serin güvenlik kâğıdı,
+ * koyu tema gece mürekkebi. Vurgular banknot mürekkeplerinden.
+ */
 @layer base {
   :root {
-    --background: 247 248 250; /* #F7F8FA */
-    --surface: 255 255 255; /* #FFFFFF */
+    --background: 236 241 237; /* güvenlik kâğıdı #ECF1ED */
+    --surface: 247 249 246; /* #F7F9F6 */
     --elevated: 255 255 255;
-    --border: 229 231 235; /* #E5E7EB */
-    --text: 15 23 42; /* #0F172A */
-    --muted: 100 116 139; /* #64748B */
-    --accent: 241 243 247;
-    --primary: 109 74 255; /* #6D4AFF */
-    --income: 22 163 74; /* #16A34A */
-    --expense: 225 29 72; /* #E11D48 */
+    --note: 221 233 227; /* banknot zemini #DDE9E3 */
+    --note-line: 186 206 198; /* #BACEC6 */
+    --border: 205 215 210; /* çizgi #CDD7D2 */
+    --text: 19 34 43; /* mürekkep #13222B */
+    --muted: 87 104 110; /* #57686E */
+    --accent: 226 233 229; /* hover zemini */
+    --primary: 31 94 122; /* 100 TL mavisi, koyu #1F5E7A */
+    --on-primary: 255 255 255;
+    --income: 46 125 79; /* 20 TL yeşili #2E7D4F */
+    --expense: 178 58 58; /* 10 TL kırmızısı #B23A3A */
+    --on-strong: 255 255 255; /* gelir/gider dolgulu buton metni */
   }
 
   .dark {
-    --background: 11 15 23; /* #0B0F17 */
-    --surface: 18 24 38; /* #121826 */
-    --elevated: 23 30 46;
-    --border: 31 41 55; /* #1F2937 */
-    --text: 230 234 242; /* #E6EAF2 */
-    --muted: 138 148 167; /* #8A94A7 */
-    --accent: 28 36 54;
-    --primary: 124 92 255; /* #7C5CFF */
-    --income: 34 197 94; /* #22C55E */
-    --expense: 244 63 94; /* #F43F5E */
+    --background: 13 24 29; /* gece mürekkebi #0D181D */
+    --surface: 19 33 40; /* #132128 */
+    --elevated: 26 43 51; /* #1A2B33 */
+    --note: 22 46 52; /* banknot zemini #162E34 */
+    --note-line: 45 74 80; /* #2D4A50 */
+    --border: 37 56 64; /* #253840 */
+    --text: 228 236 232; /* #E4ECE8 */
+    --muted: 143 163 163; /* #8FA3A3 */
+    --accent: 30 48 56;
+    --primary: 111 179 201; /* #6FB3C9 */
+    --on-primary: 13 24 29;
+    --income: 95 191 132; /* #5FBF84 */
+    --expense: 226 117 108; /* #E2756C */
+    --on-strong: 13 24 29;
   }
 
   * {
@@ -40,30 +52,52 @@
 
   body {
     @apply min-h-dvh bg-background font-sans text-foreground antialiased;
-    font-feature-settings: "cv11", "ss01";
+    font-size: 15px;
+    line-height: 1.55;
+  }
+
+  h1,
+  h2,
+  h3 {
+    text-wrap: balance;
   }
 
   ::selection {
-    background: rgb(var(--primary) / 0.3);
+    background: rgb(var(--primary) / 0.28);
+  }
+
+  :focus-visible {
+    outline: 2px solid rgb(var(--primary));
+    outline-offset: 2px;
   }
 }
 
 @layer utilities {
   .tabular {
-    font-variant-numeric: tabular-nums;
+    font-variant-numeric: tabular-nums lining-nums;
   }
 
-  /* Arka plandaki yumuşak ışık lekeleri */
-  .app-backdrop {
-    background-image:
-      radial-gradient(60rem 30rem at 85% -10%, rgb(var(--primary) / 0.12), transparent 60%),
-      radial-gradient(40rem 24rem at -10% 10%, rgb(var(--income) / 0.06), transparent 60%);
+  /* Fraunces: büyük tutarlar ve başlıklar. Düşük "SOFT", hafif optik boyut */
+  .font-display {
+    font-family: "Fraunces", ui-serif, Georgia, serif;
+    font-variation-settings: "SOFT" 30;
+    font-feature-settings: "lnum", "tnum";
   }
+}
 
-  .scrollbar-thin {
-    scrollbar-width: thin;
-    scrollbar-color: rgb(var(--border)) transparent;
+/* Guilloche çizgilerinin sayfa açılışında bir kez kendini çizmesi */
+@keyframes guilloche-draw {
+  from {
+    stroke-dashoffset: 1;
   }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.guilloche-path {
+  stroke-dasharray: 1;
+  animation: guilloche-draw 2.2s cubic-bezier(0.4, 0, 0.2, 1) both;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -71,6 +105,7 @@
   *::before,
   *::after {
     animation-duration: 0.01ms !important;
+    animation-delay: 0ms !important;
     transition-duration: 0.01ms !important;
   }
 }

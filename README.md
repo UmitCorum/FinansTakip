@@ -41,6 +41,16 @@ Git hook'ları (`hooks/`): `pre-commit` (commit'lenen dosyalar), `commit-msg` (m
 
 Kurallar: [docs/KURALLAR-GITHUB.md](docs/KURALLAR-GITHUB.md) · Sorun çözümleri: [docs/KURALLAR-UYUMLULUK.md](docs/KURALLAR-UYUMLULUK.md)
 
+## Claude Code skill'leri
+
+Proje, [anthropics/skills](https://github.com/anthropics/skills) reposunu Claude Code plugin marketplace'i olarak tanımlar (`.claude/settings.json → extraKnownMarketplaces`) ve `example-skills` plugin'ini etkinleştirir (frontend-design, webapp-testing, theme-factory, skill-creator…). Repo projeye kopyalanmaz; Claude Code ilk açılışta GitHub'dan çeker. Elle kurulum / güncelleme:
+
+```bash
+claude plugin marketplace add anthropics/skills --scope project
+claude plugin install example-skills@anthropic-agent-skills --scope project
+claude plugin marketplace update anthropic-agent-skills
+```
+
 ## 21st.dev MCP
 
 Arayüz bileşenleri için [21st.dev](https://21st.dev) MCP sunucusu `.mcp.json` içinde tanımlıdır. API anahtarı dosyaya yazılmaz; `TWENTYFIRST_API_KEY` ortam değişkeninden okunur:

@@ -131,7 +131,7 @@ export function TransactionForm({
       <div
         role="radiogroup"
         aria-label="İşlem türü"
-        className="relative grid grid-cols-2 rounded-xl bg-muted p-1"
+        className="relative grid grid-cols-2 rounded-xl border border-border bg-background p-1"
       >
         {TYPE_OPTIONS.map((opt) => {
           const active = type === opt.value;
@@ -151,15 +151,15 @@ export function TransactionForm({
               }}
               tabIndex={active ? 0 : -1}
               className={cn(
-                "relative z-10 flex h-9 items-center justify-center gap-1.5 rounded-lg text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-                active ? "text-white" : "text-muted-foreground hover:text-foreground",
+                "relative z-10 flex h-9 items-center justify-center gap-1.5 rounded-lg text-sm font-semibold transition-colors",
+                active ? "text-on-strong" : "text-muted-foreground hover:text-foreground",
               )}
             >
               {active && (
                 <motion.span
                   layoutId={`${uid}-type-pill`}
                   className={cn(
-                    "absolute inset-0 -z-10 rounded-lg shadow-sm",
+                    "absolute inset-0 -z-10 rounded-lg",
                     opt.value === "income" ? "bg-income" : "bg-expense",
                   )}
                   transition={{ type: "spring", stiffness: 500, damping: 38 }}
@@ -292,7 +292,7 @@ export function TransactionForm({
         <Textarea
           id={ids.description}
           rows={2}
-          placeholder="Ör. Haftalık market alışverişi"
+          placeholder="Örneğin haftalık market"
           aria-invalid={Boolean(errors.description)}
           aria-describedby={errors.description ? `${ids.description}-error` : undefined}
           {...register("description")}
@@ -311,10 +311,8 @@ export function TransactionForm({
           size="lg"
           disabled={isSubmitting}
           className={cn(
-            "flex-1 text-white shadow-none",
-            type === "income"
-              ? "bg-income hover:bg-income/90 hover:shadow-[0_8px_24px_-8px_rgb(var(--income)/0.6)]"
-              : "bg-expense hover:bg-expense/90 hover:shadow-[0_8px_24px_-8px_rgb(var(--expense)/0.6)]",
+            "flex-1 text-on-strong",
+            type === "income" ? "bg-income hover:bg-income/90" : "bg-expense hover:bg-expense/90",
           )}
         >
           <Check aria-hidden />

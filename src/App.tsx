@@ -1,5 +1,4 @@
 import { useMemo, useRef, useState } from "react";
-import { motion } from "framer-motion";
 import { Plus } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -31,7 +30,7 @@ import {
 import { Toaster } from "@/components/ui/sonner";
 import { CashflowChart } from "@/components/dashboard/CashflowChart";
 import { CategoryPieChart } from "@/components/dashboard/CategoryPieChart";
-import { SummaryCards } from "@/components/dashboard/SummaryCards";
+import { BalanceNote } from "@/components/dashboard/BalanceNote";
 import { TransactionForm } from "@/components/dashboard/TransactionForm";
 import { TransactionList } from "@/components/dashboard/TransactionList";
 import { Header } from "@/components/layout/Header";
@@ -56,7 +55,13 @@ import type { ChartView, Transaction, TransactionInput, TransactionType } from "
 export default function App() {
   const { theme, toggle: toggleTheme } = useTheme();
   const store = useTransactions();
-  const { period, setPeriod, filtered, label: periodLabel } = usePeriodFilter(store.transactions);
+  const {
+    period,
+    setPeriod,
+    filtered,
+    label: periodLabel,
+    phrase: periodPhrase,
+  } = usePeriodFilter(store.transactions);
   const isDesktop = useMediaQuery("(min-width: 1024px)");
 
   const [chartView, setChartView] = useState<ChartView>("expense");
@@ -86,9 +91,11 @@ export default function App() {
     [store.transactions, period],
   );
 
-  const rangeText = useMemo(() => {
+  const periodSentence = useMemo(() => {
     const range = getPeriodRange(period, new Date());
-    return range ? `${formatDate(range.from)} – ${formatDate(range.to)}` : "Tüm kayıtlar";
+    return range
+      ? `${formatDate(range.from)} – ${formatDate(range.to)} arasında`
+      : "Tüm kayıtlarda";
   }, [period]);
 
   const selectedChartId =
@@ -105,8 +112,8 @@ export default function App() {
   const handleAdd = (input: TransactionInput) => {
     store.add(input);
     setSheetOpen(false);
-    toast.success("İşlem eklendi", {
-      description: `${getCategory(input.category).name} · ${formatCurrency(input.amount)}`,
+    toast.success(input.type === "income" ? "Gelir eklendi" : "Gider eklendi", {
+      description: `${getCategory(input.category).name}, ${formatCurrency(input.amount)}`,
     });
     // Eklenen türü grafikte göster
     if (chartView !== "overview" && chartView !== input.type) setChartView(input.type);
@@ -116,7 +123,7 @@ export default function App() {
     if (!editing) return;
     store.update(editing.id, input);
     setEditing(null);
-    toast.success("İşlem güncellendi");
+    toast.success("Değişiklikler kaydedildi");
   };
 
   const confirmDelete = () => {
@@ -124,8 +131,8 @@ export default function App() {
     const tx = deleting;
     store.remove(tx.id);
     setDeleting(null);
-    toast("İşlem silindi", {
-      description: `${getCategory(tx.category).name} · ${formatCurrency(tx.amount)}`,
+    toast("Kayıt silindi", {
+      description: `${getCategory(tx.category).name}, ${formatCurrency(tx.amount)}`,
       action: { label: "Geri al", onClick: () => store.restore(tx) },
       duration: 6000,
     });
@@ -147,7 +154,7 @@ export default function App() {
   };
 
   return (
-    <div className="app-backdrop min-h-dvh">
+    <div className="min-h-dvh">
       <Header
         period={period}
         onPeriodChange={setPeriod}
@@ -161,46 +168,19 @@ export default function App() {
         onClearAll={() => {
           store.clearAll();
           setFilters(EMPTY_FILTERS);
-          toast.success("Tüm veriler temizlendi");
+          toast.success("Tüm kayıtlar silindi");
         }}
       />
 
-      <main className="container space-y-5 py-6 pb-28 sm:space-y-6 lg:py-8 lg:pb-12">
-        <motion.div
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4 }}
-          className="flex flex-wrap items-end justify-between gap-2"
-        >
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Genel bakış</h1>
-            <p className="mt-1 text-sm text-muted-foreground">
-              {periodLabel} · {rangeText}
-            </p>
-          </div>
-        </motion.div>
-
-        <SummaryCards
-          totals={totals}
-          previous={previousTotals}
-          series={cashflow.points}
-          incomeCount={counts.income}
-          expenseCount={counts.expense}
-        />
-
-        <div className="grid items-start gap-5 sm:gap-6 lg:grid-cols-12">
-          <motion.div
-            initial={{ opacity: 0, y: 14 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
-            className="space-y-5 sm:space-y-6 lg:col-span-7 xl:col-span-8"
-          >
-            <CashflowChart
-              points={cashflow.points}
-              granularity={cashflow.granularity}
-              periodLabel={periodLabel}
-              income={totals.income}
-              expense={totals.expense}
+      <main className="container space-y-6 py-6 pb-28 lg:space-y-8 lg:py-8 lg:pb-14">
+        <div className="grid items-start gap-6 lg:grid-cols-12 lg:gap-8">
+          <div className="space-y-6 lg:col-span-8 lg:space-y-8">
+            <BalanceNote
+              totals={totals}
+              previous={previousTotals}
+              incomeCount={counts.income}
+              expenseCount={counts.expense}
+              periodSentence={periodSentence}
             />
             <CategoryPieChart
               transactions={filtered}
@@ -210,27 +190,31 @@ export default function App() {
               onSelect={handleChartSelect}
               periodLabel={periodLabel}
             />
-          </motion.div>
+            <CashflowChart
+              points={cashflow.points}
+              granularity={cashflow.granularity}
+              periodLabel={periodPhrase}
+              income={totals.income}
+              expense={totals.expense}
+            />
+          </div>
 
           {isDesktop && (
-            <motion.div
-              initial={{ opacity: 0, y: 14 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.28, ease: [0.16, 1, 0.3, 1] }}
-              className="sticky top-20 lg:col-span-5 xl:col-span-4"
-            >
+            <aside className="sticky top-24 lg:col-span-4">
               <Card>
                 <CardHeader>
                   <CardTitle id="new-transaction" tabIndex={-1} className="outline-none">
-                    Yeni İşlem
+                    Yeni kayıt
                   </CardTitle>
-                  <CardDescription>Gelir veya gider kaydı ekleyin</CardDescription>
+                  <CardDescription>
+                    Gelir ya da gider ekle; panel hemen güncellenir.
+                  </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <TransactionForm onSubmit={handleAdd} />
                 </CardContent>
               </Card>
-            </motion.div>
+            </aside>
           )}
         </div>
 
@@ -246,35 +230,32 @@ export default function App() {
           onAdd={openAdd}
         />
 
-        <footer className="pt-2 text-center text-xs text-muted-foreground">
-          Veriler yalnızca bu tarayıcıda saklanır.
+        <footer className="pt-2 text-center text-small text-muted-foreground">
+          Kayıtların yalnızca bu tarayıcıda saklanır.
         </footer>
       </main>
 
       {/* Mobil: sabit "+" butonu ve alttan açılan form */}
       {!isDesktop && (
         <>
-          <motion.div
-            initial={{ scale: 0, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ type: "spring", stiffness: 300, damping: 20, delay: 0.4 }}
-            className="fixed bottom-[max(1.25rem,env(safe-area-inset-bottom))] right-5 z-30"
-          >
+          <div className="fixed bottom-[max(1.25rem,env(safe-area-inset-bottom))] right-5 z-30">
             <Button
               size="icon"
               onClick={() => setSheetOpen(true)}
-              aria-label="Yeni işlem ekle"
-              className="h-14 w-14 rounded-2xl [&_svg]:size-6"
+              aria-label="Yeni kayıt ekle"
+              className="h-14 w-14 rounded-full shadow-lift [&_svg]:size-6"
             >
               <Plus />
             </Button>
-          </motion.div>
+          </div>
 
           <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
             <SheetContent>
               <SheetHeader>
-                <SheetTitle>Yeni İşlem</SheetTitle>
-                <SheetDescription>Gelir veya gider kaydı ekleyin</SheetDescription>
+                <SheetTitle>Yeni kayıt</SheetTitle>
+                <SheetDescription>
+                  Gelir ya da gider ekle; panel hemen güncellenir.
+                </SheetDescription>
               </SheetHeader>
               <TransactionForm onSubmit={handleAdd} />
             </SheetContent>
@@ -286,8 +267,8 @@ export default function App() {
       <Dialog open={editing !== null} onOpenChange={(open) => !open && setEditing(null)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>İşlemi düzenle</DialogTitle>
-            <DialogDescription>Bilgileri güncelleyip kaydedin.</DialogDescription>
+            <DialogTitle>Kaydı düzenle</DialogTitle>
+            <DialogDescription>Değiştirmek istediğin alanları güncelle.</DialogDescription>
           </DialogHeader>
           {editing && (
             <TransactionForm
@@ -304,10 +285,10 @@ export default function App() {
       <AlertDialog open={deleting !== null} onOpenChange={(open) => !open && setDeleting(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>İşlem silinsin mi?</AlertDialogTitle>
+            <AlertDialogTitle>Kayıt silinsin mi?</AlertDialogTitle>
             <AlertDialogDescription>
               {deleting &&
-                `${formatDate(deleting.date)} tarihli ${formatCurrency(deleting.amount)} tutarındaki "${getCategory(deleting.category).name}" işlemi silinecek.`}
+                `${formatDate(deleting.date)} tarihli ${formatCurrency(deleting.amount)} tutarındaki "${getCategory(deleting.category).name}" kaydı silinecek. Silince birkaç saniye içinde geri alabilirsin.`}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

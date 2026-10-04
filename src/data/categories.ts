@@ -1,24 +1,25 @@
 import type { Category, TransactionType } from "@/types/finance";
 
+// Renkler Türk lirası banknot mürekkeplerinden (20 TL yeşili, 50 TL turuncusu, 100 TL mavisi…)
 export const CATEGORIES: Category[] = [
   // Gelir
-  { id: "salary", name: "Maaş", type: "income", color: "#10B981", icon: "briefcase" },
-  { id: "freelance", name: "Serbest Çalışma", type: "income", color: "#06B6D4", icon: "laptop" },
-  { id: "investment", name: "Yatırım", type: "income", color: "#8B5CF6", icon: "trending-up" },
-  { id: "rental-income", name: "Kira Geliri", type: "income", color: "#F59E0B", icon: "building" },
-  { id: "other-income", name: "Diğer Gelir", type: "income", color: "#94A3B8", icon: "coins" },
+  { id: "salary", name: "Maaş", type: "income", color: "#3E9A62", icon: "briefcase" },
+  { id: "freelance", name: "Serbest Çalışma", type: "income", color: "#3A7DB8", icon: "laptop" },
+  { id: "investment", name: "Yatırım", type: "income", color: "#A2569A", icon: "trending-up" },
+  { id: "rental-income", name: "Kira Geliri", type: "income", color: "#D9822B", icon: "building" },
+  { id: "other-income", name: "Diğer Gelir", type: "income", color: "#7D8C8C", icon: "coins" },
 
   // Gider
-  { id: "groceries", name: "Market", type: "expense", color: "#F97316", icon: "shopping-cart" },
-  { id: "rent", name: "Kira", type: "expense", color: "#6366F1", icon: "home" },
-  { id: "bills", name: "Faturalar", type: "expense", color: "#FACC15", icon: "receipt" },
-  { id: "transport", name: "Ulaşım", type: "expense", color: "#0EA5E9", icon: "car" },
-  { id: "dining", name: "Yeme-İçme", type: "expense", color: "#F43F5E", icon: "utensils" },
-  { id: "entertainment", name: "Eğlence", type: "expense", color: "#D946EF", icon: "clapperboard" },
-  { id: "health", name: "Sağlık", type: "expense", color: "#10B981", icon: "heart-pulse" },
-  { id: "shopping", name: "Alışveriş", type: "expense", color: "#A3E635", icon: "shopping-bag" },
-  { id: "education", name: "Eğitim", type: "expense", color: "#2DD4BF", icon: "graduation-cap" },
-  { id: "other-expense", name: "Diğer Gider", type: "expense", color: "#94A3B8", icon: "ellipsis" },
+  { id: "groceries", name: "Market", type: "expense", color: "#D9822B", icon: "shopping-cart" },
+  { id: "rent", name: "Kira", type: "expense", color: "#3A7DB8", icon: "home" },
+  { id: "bills", name: "Faturalar", type: "expense", color: "#C9A227", icon: "receipt" },
+  { id: "transport", name: "Ulaşım", type: "expense", color: "#2A9D96", icon: "car" },
+  { id: "dining", name: "Yeme-İçme", type: "expense", color: "#C8493E", icon: "utensils" },
+  { id: "entertainment", name: "Eğlence", type: "expense", color: "#A2569A", icon: "clapperboard" },
+  { id: "health", name: "Sağlık", type: "expense", color: "#3E9A62", icon: "heart-pulse" },
+  { id: "shopping", name: "Alışveriş", type: "expense", color: "#8573B3", icon: "shopping-bag" },
+  { id: "education", name: "Eğitim", type: "expense", color: "#9A7350", icon: "graduation-cap" },
+  { id: "other-expense", name: "Diğer Gider", type: "expense", color: "#7D8C8C", icon: "ellipsis" },
 ];
 
 const byId = new Map(CATEGORIES.map((c) => [c.id, c]));
@@ -40,6 +41,6 @@ export function getCategoriesByType(type: TransactionType): Category[] {
 }
 
 export const OVERVIEW_COLORS = {
-  income: "#22C55E",
-  expense: "#F43F5E",
+  income: "#3E9A62",
+  expense: "#C8493E",
 } as const;

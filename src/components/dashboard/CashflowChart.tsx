@@ -28,9 +28,9 @@ interface CashflowChartProps {
 }
 
 const GRANULARITY_LABEL: Record<Granularity, string> = {
-  day: "Günlük",
-  week: "Haftalık",
-  month: "Aylık",
+  day: "Gün gün",
+  week: "Hafta hafta",
+  month: "Ay ay",
 };
 
 const SERIES = [
@@ -48,8 +48,8 @@ function CashflowTooltip({
   const point = payload[0].payload as CashflowPoint;
   const net = point.income - point.expense;
   return (
-    <div className="min-w-[190px] rounded-xl border border-border bg-popover/95 px-3.5 py-3 text-sm shadow-lift backdrop-blur">
-      <p className="mb-2 text-xs font-medium text-muted-foreground">
+    <div className="min-w-[190px] rounded-xl border border-border bg-popover px-3.5 py-3 text-sm shadow-lift">
+      <p className="mb-2 text-small font-semibold text-muted-foreground">
         {granularity === "week" ? `${label} haftası` : label}
       </p>
       {SERIES.map((s) => (
@@ -88,42 +88,47 @@ export function CashflowChart({
 
   return (
     <Card className={cn("flex flex-col", className)}>
-      <CardHeader className="flex-row flex-wrap items-start justify-between gap-4 space-y-0">
-        <div className="space-y-1.5">
-          <CardTitle>Nakit Akışı</CardTitle>
+      <CardHeader className="flex-row flex-wrap items-end justify-between gap-x-6 gap-y-3 space-y-0">
+        <div>
+          <CardTitle>Nakit akışı</CardTitle>
           <CardDescription>
-            {GRANULARITY_LABEL[granularity]} gelir ve gider · {periodLabel}
+            {GRANULARITY_LABEL[granularity]} gelen ve giden para, {periodLabel}.
           </CardDescription>
         </div>
-        <div className="flex gap-2" role="group" aria-label="Seriler">
+        <ul className="flex gap-5" aria-label="Seriler">
           {SERIES.map((s) => (
-            <button
-              key={s.key}
-              type="button"
-              onMouseEnter={() => setActive(s.key)}
-              onMouseLeave={() => setActive(null)}
-              onFocus={() => setActive(s.key)}
-              onBlur={() => setActive(null)}
-              className="rounded-xl border border-border px-3 py-2 text-left transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-            >
-              <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                <span className="h-2 w-2 rounded-full" style={{ backgroundColor: s.color }} />
-                {s.label}
-              </span>
-              <span className="tabular mt-0.5 block text-sm font-semibold">
-                {formatCurrency(totals[s.key])}
-              </span>
-            </button>
+            <li key={s.key}>
+              <button
+                type="button"
+                onMouseEnter={() => setActive(s.key)}
+                onMouseLeave={() => setActive(null)}
+                onFocus={() => setActive(s.key)}
+                onBlur={() => setActive(null)}
+                className="text-left"
+              >
+                <span className="flex items-center gap-2 text-small text-muted-foreground">
+                  <span
+                    aria-hidden
+                    className="h-[3px] w-4 rounded-full"
+                    style={{ backgroundColor: s.color }}
+                  />
+                  {s.label}
+                </span>
+                <span className="tabular block text-sm font-semibold">
+                  {formatCurrency(totals[s.key])}
+                </span>
+              </button>
+            </li>
           ))}
-        </div>
+        </ul>
       </CardHeader>
 
       <CardContent className="flex-1 pl-1 sm:pl-2">
         {!hasData ? (
           <EmptyState
             icon={ChartSpline}
-            title="Bu dönemde hareket yok"
-            description="İşlem ekledikçe gelir ve gider akışınız burada görünecek."
+            title="Bu dönemde para hareketi yok"
+            description="Kayıt ekledikçe gelen ve giden para burada çizilir."
           />
         ) : (
           <div
@@ -136,12 +141,12 @@ export function CashflowChart({
                 <defs>
                   {SERIES.map((s) => (
                     <linearGradient key={s.key} id={`${id}-${s.key}`} x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor={s.color} stopOpacity={0.32} />
+                      <stop offset="0%" stopColor={s.color} stopOpacity={0.18} />
                       <stop offset="95%" stopColor={s.color} stopOpacity={0} />
                     </linearGradient>
                   ))}
                 </defs>
-                <CartesianGrid vertical={false} strokeDasharray="4 4" stroke="rgb(var(--border))" />
+                <CartesianGrid vertical={false} stroke="rgb(var(--border))" />
                 <XAxis
                   dataKey="label"
                   tickLine={false}
@@ -172,7 +177,7 @@ export function CashflowChart({
                     dataKey={s.key}
                     name={s.label}
                     stroke={s.color}
-                    strokeWidth={2.25}
+                    strokeWidth={2}
                     fill={`url(#${id}-${s.key})`}
                     activeDot={{ r: 4.5, strokeWidth: 2, stroke: "rgb(var(--surface))" }}
                     isAnimationActive={!reduceMotion}

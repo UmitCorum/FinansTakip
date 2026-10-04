@@ -1,14 +1,6 @@
 import { useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
-import {
-  CalendarRange,
-  EllipsisVertical,
-  Moon,
-  PiggyBank,
-  RotateCcw,
-  Sun,
-  Trash2,
-} from "lucide-react";
+import { motion } from "framer-motion";
+import { CalendarRange, EllipsisVertical, Moon, RotateCcw, Sun, Trash2 } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -24,7 +16,6 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
@@ -56,20 +47,49 @@ const CONFIRM: Record<
   { title: string; description: string; action: string; destructive: boolean }
 > = {
   reset: {
-    title: "Örnek verilere sıfırlansın mı?",
+    title: "Örnek veriler yüklensin mi?",
     description:
-      "Eklediğiniz tüm işlemler silinecek ve panel son 3 aya ait örnek verilerle yeniden doldurulacak.",
-    action: "Sıfırla",
+      "Eklediğin tüm kayıtlar silinir ve son 3 aya ait örnek kayıtlar yüklenir. Bu işlem geri alınamaz.",
+    action: "Örnek verileri yükle",
     destructive: false,
   },
   clear: {
-    title: "Tüm veriler silinsin mi?",
-    description:
-      "Bütün işlemler kalıcı olarak silinecek. Bu işlem geri alınamaz; panel boş olarak açılacak.",
-    action: "Tümünü sil",
+    title: "Tüm kayıtlar silinsin mi?",
+    description: "Bütün gelir ve gider kayıtları kalıcı olarak silinir. Bu işlem geri alınamaz.",
+    action: "Tüm kayıtları sil",
     destructive: true,
   },
 };
+
+/** Kumbara işareti: guilloche rozetli küçük bir madeni para */
+function Mark() {
+  return (
+    <svg viewBox="0 0 32 32" aria-hidden className="h-8 w-8">
+      <circle cx="16" cy="16" r="15" className="fill-primary" />
+      <circle
+        cx="16"
+        cy="16"
+        r="12.5"
+        className="fill-none stroke-primary-foreground"
+        strokeWidth="0.8"
+        opacity="0.5"
+      />
+      {Array.from({ length: 12 }, (_, i) => (
+        <ellipse
+          key={i}
+          cx="16"
+          cy="16"
+          rx="8.5"
+          ry="3.4"
+          transform={`rotate(${i * 15} 16 16)`}
+          className="fill-none stroke-primary-foreground"
+          strokeWidth="0.7"
+          opacity="0.85"
+        />
+      ))}
+    </svg>
+  );
+}
 
 export function Header({
   period,
@@ -83,22 +103,14 @@ export function Header({
   const c = confirm ? CONFIRM[confirm] : null;
 
   return (
-    <header className="sticky top-0 z-40 border-b border-border/60 bg-background/75 backdrop-blur-xl">
+    <header className="sticky top-0 z-40 border-b border-border bg-background/85 backdrop-blur-md">
       <div className="container flex h-16 items-center gap-2 sm:gap-3">
-        <a
-          href="/"
-          className="mr-auto flex items-center gap-2.5 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-        >
-          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-[#9B82FF] to-primary text-white shadow-glow">
-            <PiggyBank className="h-5 w-5" strokeWidth={2.2} aria-hidden />
-          </span>
-          <span className="hidden flex-col leading-tight min-[420px]:flex">
-            <span className="text-[15px] font-bold tracking-tight">Kumbara</span>
-            <span className="text-[11px] text-muted-foreground">Kişisel finans paneli</span>
-          </span>
+        <a href="/" className="mr-auto flex items-center gap-2.5 rounded-lg">
+          <Mark />
+          <span className="font-display text-[21px] font-[560] tracking-[-0.01em]">Kumbara</span>
         </a>
 
-        {/* Masaüstü: kayan göstergeli segment kontrol */}
+        {/* Masaüstü: dönem segment kontrolü */}
         <div
           role="radiogroup"
           aria-label="Dönem"
@@ -114,15 +126,17 @@ export function Header({
                 aria-checked={active}
                 onClick={() => onPeriodChange(o.value)}
                 className={cn(
-                  "relative h-full rounded-lg px-3 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-                  active ? "text-foreground" : "text-muted-foreground hover:text-foreground",
+                  "relative h-full rounded-lg px-3 text-sm font-semibold transition-colors",
+                  active
+                    ? "text-primary-foreground"
+                    : "text-muted-foreground hover:text-foreground",
                 )}
               >
                 {active && (
                   <motion.span
                     layoutId="period-pill"
-                    className="absolute inset-0 rounded-lg bg-accent shadow-sm ring-1 ring-border"
-                    transition={{ type: "spring", stiffness: 480, damping: 38 }}
+                    className="absolute inset-0 rounded-lg bg-primary"
+                    transition={{ type: "spring", stiffness: 480, damping: 40 }}
                   />
                 )}
                 <span className="relative">{o.label}</span>
@@ -134,7 +148,7 @@ export function Header({
         <Select value={period} onValueChange={(v) => onPeriodChange(v as Period)}>
           <SelectTrigger
             aria-label="Dönem seçin"
-            className="h-10 w-[136px] bg-surface sm:w-[160px] md:hidden"
+            className="h-10 w-[136px] bg-surface font-semibold sm:w-[160px] md:hidden"
           >
             <CalendarRange className="h-4 w-4 shrink-0 text-muted-foreground" aria-hidden />
             <SelectValue />
@@ -149,42 +163,29 @@ export function Header({
         </Select>
 
         <Button
-          variant="outline"
+          variant="ghost"
           size="icon"
           onClick={onToggleTheme}
           aria-label={theme === "dark" ? "Açık temaya geç" : "Koyu temaya geç"}
-          className="relative overflow-hidden"
         >
-          <AnimatePresence mode="wait" initial={false}>
-            <motion.span
-              key={theme}
-              initial={{ rotate: -90, opacity: 0, scale: 0.6 }}
-              animate={{ rotate: 0, opacity: 1, scale: 1 }}
-              exit={{ rotate: 90, opacity: 0, scale: 0.6 }}
-              transition={{ duration: 0.2 }}
-              className="flex"
-            >
-              {theme === "dark" ? <Moon /> : <Sun />}
-            </motion.span>
-          </AnimatePresence>
+          {theme === "dark" ? <Sun /> : <Moon />}
         </Button>
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" size="icon" aria-label="Menü">
+            <Button variant="ghost" size="icon" aria-label="Kayıt seçenekleri">
               <EllipsisVertical />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Veri yönetimi</DropdownMenuLabel>
             <DropdownMenuItem onSelect={() => setConfirm("reset")}>
               <RotateCcw />
-              Örnek verilere sıfırla
+              Örnek verileri yükle
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem destructive onSelect={() => setConfirm("clear")}>
               <Trash2 />
-              Tüm verileri temizle
+              Tüm kayıtları sil
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

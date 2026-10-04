@@ -1,4 +1,4 @@
-import { useId, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useReducedMotion } from "framer-motion";
 import {
   Cell,
@@ -14,8 +14,6 @@ import { ChartPie } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AnimatedNumber } from "@/components/dashboard/AnimatedNumber";
-import { CategoryIcon } from "@/components/dashboard/CategoryIcon";
-import { ChartGlowFilter } from "@/components/dashboard/ChartGlowFilter";
 import { ChartLegend } from "@/components/dashboard/ChartLegend";
 import { EmptyState } from "@/components/dashboard/EmptyState";
 import {
@@ -39,45 +37,47 @@ interface CategoryPieChartProps {
   className?: string;
 }
 
-const VIEW_META: Record<ChartView, { tab: string; center: string; empty: string }> = {
-  expense: { tab: "Giderler", center: "Toplam gider", empty: "Bu dönemde gider kaydı yok" },
-  income: { tab: "Gelirler", center: "Toplam gelir", empty: "Bu dönemde gelir kaydı yok" },
-  overview: { tab: "Genel", center: "Net bakiye", empty: "Bu dönemde işlem yok" },
+const VIEW_META: Record<
+  ChartView,
+  { tab: string; center: string; description: string; empty: string }
+> = {
+  expense: {
+    tab: "Giderler",
+    center: "Toplam gider",
+    description: "Harcamalar kategoriye göre. Bir kategoriye dokunursan defter ona göre süzülür.",
+    empty: "Bu dönemde gider kaydı yok",
+  },
+  income: {
+    tab: "Gelirler",
+    center: "Toplam gelir",
+    description: "Gelirler kaynağa göre. Bir kaynağa dokunursan defter ona göre süzülür.",
+    empty: "Bu dönemde gelir kaydı yok",
+  },
+  overview: {
+    tab: "Genel",
+    center: "Net bakiye",
+    description: "Gelirle giderin birbirine oranı.",
+    empty: "Bu dönemde kayıt yok",
+  },
 };
 
 function renderActiveShape(props: PieSectorDataItem) {
-  return (
-    <g>
-      <Sector {...props} outerRadius={(props.outerRadius ?? 0) + 7} />
-      <Sector
-        {...props}
-        innerRadius={(props.outerRadius ?? 0) + 10}
-        outerRadius={(props.outerRadius ?? 0) + 12}
-        opacity={0.35}
-      />
-    </g>
-  );
+  return <Sector {...props} outerRadius={(props.outerRadius ?? 0) + 6} />;
 }
 
 function ChartTooltip({ active, payload }: TooltipProps<number, string>) {
   if (!active || !payload?.length) return null;
   const item = payload[0].payload as BreakdownItem;
   return (
-    <div className="min-w-[180px] rounded-xl border border-border bg-popover/95 px-3.5 py-3 shadow-lift backdrop-blur">
-      <div className="flex items-center gap-2.5">
-        <CategoryIcon icon={item.icon} color={item.color} size="sm" />
-        <span className="text-sm font-semibold">{item.name}</span>
+    <div className="min-w-[170px] rounded-xl border border-border bg-popover px-3.5 py-3 shadow-lift">
+      <div className="flex items-center gap-2 text-sm font-semibold">
+        <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: item.color }} />
+        {item.name}
       </div>
-      <div className="mt-2.5 flex items-baseline justify-between gap-4">
-        <span className="tabular text-base font-bold">{formatCurrency(item.amount)}</span>
-        <span
-          className="tabular rounded-md px-1.5 py-0.5 text-xs font-semibold"
-          style={{ backgroundColor: `${item.color}22`, color: item.color }}
-        >
-          {formatPercent(item.share)}
-        </span>
-      </div>
-      <p className="mt-1 text-xs text-muted-foreground">{item.count} işlem</p>
+      <p className="tabular mt-1.5 text-base font-semibold">{formatCurrency(item.amount)}</p>
+      <p className="text-small text-muted-foreground">
+        Payı {formatPercent(item.share)}, {item.count} kayıt
+      </p>
     </div>
   );
 }
@@ -92,7 +92,6 @@ export function CategoryPieChart({
   className,
 }: CategoryPieChartProps) {
   const [activeIndex, setActiveIndex] = useState<number | undefined>();
-  const glowId = `pie-glow-${useId().replace(/:/g, "")}`;
   const reduceMotion = useReducedMotion();
 
   const data = useMemo(
@@ -116,15 +115,11 @@ export function CategoryPieChart({
 
   return (
     <Card className={cn("flex flex-col", className)}>
-      <CardHeader className="flex-row flex-wrap items-center justify-between gap-3 space-y-0">
-        <div className="space-y-1.5">
-          <CardTitle>Kategori Dağılımı</CardTitle>
-          <CardDescription>
-            {periodLabel} · dilime veya listeye tıklayarak filtreleyin
-          </CardDescription>
-        </div>
-        <Tabs value={view} onValueChange={handleViewChange}>
-          <TabsList aria-label="Grafik görünümü">
+      <CardHeader>
+        <CardTitle>Nereye gitti?</CardTitle>
+        <CardDescription>{meta.description}</CardDescription>
+        <Tabs value={view} onValueChange={handleViewChange} className="mt-3">
+          <TabsList aria-label={`${periodLabel} için görünüm`}>
             {(Object.keys(VIEW_META) as ChartView[]).map((v) => (
               <TabsTrigger key={v} value={v}>
                 {VIEW_META[v].tab}
@@ -139,33 +134,30 @@ export function CategoryPieChart({
           <EmptyState
             icon={ChartPie}
             title={meta.empty}
-            description="Yeni bir işlem ekleyin ya da üstten farklı bir dönem seçin."
+            description="Yeni bir kayıt ekle ya da üstten başka bir dönem seç."
           />
         ) : (
-          <div className="grid items-center gap-6 md:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)]">
+          <div className="grid items-start gap-8 md:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
             <div
-              className="relative mx-auto aspect-square w-full max-w-[300px]"
+              className="relative mx-auto aspect-square w-full max-w-[280px]"
               role="img"
-              aria-label={`${meta.tab} pasta grafiği: ${data
+              aria-label={`${meta.tab}: ${data
                 .map((d) => `${d.name} ${formatPercent(d.share)}`)
                 .join(", ")}`}
             >
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
-                  <defs>
-                    <ChartGlowFilter id={glowId} />
-                  </defs>
                   <Pie
                     key={view}
                     data={data}
                     dataKey="amount"
                     nameKey="name"
-                    innerRadius="64%"
-                    outerRadius="86%"
-                    paddingAngle={data.length > 1 ? 3 : 0}
-                    cornerRadius={8}
+                    innerRadius="70%"
+                    outerRadius="90%"
+                    paddingAngle={data.length > 1 ? 2 : 0}
+                    cornerRadius={3}
                     stroke="rgb(var(--surface))"
-                    strokeWidth={1.5}
+                    strokeWidth={2}
                     isAnimationActive={!reduceMotion}
                     startAngle={90}
                     endAngle={-270}
@@ -175,7 +167,7 @@ export function CategoryPieChart({
                     onMouseLeave={() => setActiveIndex(undefined)}
                     onClick={(_, i) => onSelect(view, data[i].id)}
                     animationBegin={0}
-                    animationDuration={900}
+                    animationDuration={700}
                     animationEasing="ease-out"
                     className="cursor-pointer outline-none"
                   >
@@ -184,13 +176,12 @@ export function CategoryPieChart({
                         key={d.id}
                         fill={d.color}
                         className="outline-none [transition:opacity_200ms_ease]"
-                        // 21st Pie Chart deseni: hover'da diğer dilimleri soldur, aktif dilimi parlat
+                        // Hover'da diğer dilimleri soldur (21st.dev Pie Chart deseni)
                         opacity={
                           activeId
                             ? markOpacity(activeId, d.id)
                             : markOpacity(selectedId, d.id, 0.35)
                         }
-                        filter={activeId === d.id ? `url(#${glowId})` : undefined}
                       />
                     ))}
                   </Pie>
@@ -203,19 +194,14 @@ export function CategoryPieChart({
               </ResponsiveContainer>
 
               <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center text-center">
-                <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                  {meta.center}
-                </span>
+                <span className="text-small text-muted-foreground">{meta.center}</span>
                 <AnimatedNumber
                   value={centerValue}
                   className={cn(
-                    "mt-1 text-xl font-bold tracking-tight sm:text-2xl",
+                    "mt-0.5 font-display text-[26px] font-[540] leading-tight",
                     view === "overview" && (centerValue >= 0 ? "text-income" : "text-expense"),
                   )}
                 />
-                <span className="mt-1 text-xs text-muted-foreground">
-                  {view === "overview" ? `${totals.count} işlem` : `${data.length} kategori`}
-                </span>
               </div>
             </div>
 

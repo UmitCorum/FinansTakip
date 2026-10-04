@@ -26,6 +26,19 @@ Windows PowerShell 5.1: `&&` yok (U-09). Yeni kurulan araçlar PATH'te yoksa U-0
 - Her yanıt sonunda (Stop): proje değiştiyse tip + lint + test + gizli bilgi taraması. Başarısızsa bitirmeden düzelt.
 - Git: `pre-commit`, `commit-msg`, `pre-push` → `hooks/scripts/check.mjs`.
 
+## Skill'ler
+
+`.claude/settings.json` [anthropics/skills](https://github.com/anthropics/skills) marketplace'ini (`anthropic-agent-skills`) tanımlar ve `example-skills` plugin'ini etkinleştirir. Arayüz işlerinde `frontend-design`, tarayıcı testlerinde `webapp-testing` skill'ini kullan.
+
+## Tasarım dili ("Banknot")
+
+- Yön: Türk lirası banknotu. Tek akılda kalan öğe, net bakiyenin basıldığı guilloche desenli banknot paneli (`BalanceNote`, `Guilloche`). Geri kalan her şey sade.
+- Renk token'ları `src/index.css`'te (koyu: gece mürekkebi, açık: güvenlik kâğıdı). Kategori renkleri banknot mürekkeplerinden (`data/categories.ts`).
+- Tipografi: Fraunces yalnızca büyük tutarlar ve bölüm başlıkları (`font-display`); arayüz Manrope.
+- Köşe yarıçapı hiyerarşiye göre: `rounded-note` 20 · `rounded-panel` 14 · kontroller 10. Gölge yalnızca yüzen katmanlarda (`shadow-lift`).
+- Kaçınılanlar: BÜYÜK HARF etiketler, "A · B" meta metinleri, bölüm başına giriş animasyonu, kart hover-lift, gradient yıkama, aynı kartlardan grid. Tek yükleme anı: guilloche çizimi + bakiye sayımı.
+- Metin: sentence case, kullanıcıya "sen" diye hitap; buton ile toast aynı fiili kullanır ("Gider ekle" → "Gider eklendi").
+
 ## Kod düzeni
 
 - Hesaplamalar saf fonksiyon olarak `src/lib/calculations.ts`'de; yeni fonksiyona `calculations.test.ts`'de test ekle.

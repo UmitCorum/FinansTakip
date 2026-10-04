@@ -78,11 +78,11 @@ export const TransactionList = forwardRef<HTMLElement, TransactionListProps>(
           <CardHeader className="gap-4">
             <div className="flex flex-wrap items-end justify-between gap-2">
               <div className="space-y-1.5">
-                <CardTitle id="tx-list-title">İşlemler</CardTitle>
+                <CardTitle id="tx-list-title">Hesap defteri</CardTitle>
                 <CardDescription>
                   {filtered.length === transactions.length
-                    ? `${transactions.length} işlem`
-                    : `${transactions.length} işlemden ${filtered.length} tanesi gösteriliyor`}
+                    ? `Bu dönemde ${transactions.length} kayıt`
+                    : `${transactions.length} kayıttan ${filtered.length} tanesi gösteriliyor`}
                 </CardDescription>
               </div>
               {hasFilters && (
@@ -103,8 +103,8 @@ export const TransactionList = forwardRef<HTMLElement, TransactionListProps>(
                   type="search"
                   value={filters.search}
                   onChange={(e) => set({ search: e.target.value })}
-                  placeholder="Açıklama veya kategori ara…"
-                  aria-label="İşlem ara"
+                  placeholder="Açıklama ya da kategori ara"
+                  aria-label="Kayıt ara"
                   className="pl-10"
                 />
               </div>
@@ -157,15 +157,15 @@ export const TransactionList = forwardRef<HTMLElement, TransactionListProps>(
             {transactions.length === 0 ? (
               <EmptyState
                 icon={Inbox}
-                title="Henüz işlem yok"
-                description="Bu dönemde kayıtlı işlem bulunmuyor. İlk işleminizi ekleyerek başlayın."
-                action={<Button onClick={onAdd}>İşlem ekle</Button>}
+                title="Bu dönemde kayıt yok"
+                description="İlk gelir ya da giderini ekleyince defter burada dolmaya başlar."
+                action={<Button onClick={onAdd}>Kayıt ekle</Button>}
               />
             ) : filtered.length === 0 ? (
               <EmptyState
                 icon={SearchX}
-                title="Sonuç bulunamadı"
-                description="Arama veya filtre kriterlerinize uyan işlem yok."
+                title="Bu aramaya uyan kayıt yok"
+                description="Aramayı kısalt ya da filtreleri temizle."
                 action={
                   <Button variant="outline" onClick={() => set(EMPTY_FILTERS)}>
                     Filtreleri temizle
@@ -176,16 +176,14 @@ export const TransactionList = forwardRef<HTMLElement, TransactionListProps>(
               <>
                 <ColumnHeaders />
                 {grouped ? (
-                  <div className="space-y-4">
+                  <div className="space-y-2">
                     {groups.map((g) => (
                       <div key={g.date}>
-                        <div className="sticky top-16 z-10 flex items-center justify-between bg-surface/90 px-3 py-2 backdrop-blur">
-                          <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                            {formatDateGroup(g.date)}
-                          </h3>
+                        <div className="sticky top-16 z-10 flex items-baseline justify-between border-b border-border bg-surface px-3 pb-1.5 pt-3">
+                          <h3 className="text-small font-bold">{formatDateGroup(g.date)}</h3>
                           <span
                             className={cn(
-                              "tabular text-xs font-medium",
+                              "tabular text-small font-semibold",
                               g.net >= 0 ? "text-income" : "text-expense",
                             )}
                           >
@@ -204,7 +202,7 @@ export const TransactionList = forwardRef<HTMLElement, TransactionListProps>(
                 {filtered.length > visible && (
                   <div className="flex justify-center pt-4">
                     <Button variant="outline" onClick={() => setVisible((v) => v + PAGE_SIZE)}>
-                      Daha fazla göster ({filtered.length - visible})
+                      {filtered.length - visible} kayıt daha göster
                     </Button>
                   </div>
                 )}
@@ -220,7 +218,7 @@ export const TransactionList = forwardRef<HTMLElement, TransactionListProps>(
 function ColumnHeaders() {
   return (
     <div
-      className="hidden grid-cols-[110px_minmax(0,1.2fr)_minmax(0,1.5fr)_80px_140px_76px] gap-3 border-b border-border px-3 pb-2 text-xs font-medium text-muted-foreground md:grid"
+      className="hidden grid-cols-[110px_minmax(0,1.2fr)_minmax(0,1.5fr)_80px_140px_76px] gap-3 px-3 pb-1 text-small text-muted-foreground md:grid"
       aria-hidden
     >
       <span>Tarih</span>
@@ -243,7 +241,7 @@ function Rows({
   onDelete: (tx: Transaction) => void;
 }) {
   return (
-    <ul className="flex flex-col">
+    <ul className="flex flex-col divide-y divide-border/70">
       <AnimatePresence initial={false}>
         {items.map((tx) => (
           <motion.li
@@ -285,7 +283,7 @@ function Row({
         variant="ghost"
         size="icon-sm"
         onClick={() => onEdit(tx)}
-        aria-label={`${category.name} işlemini düzenle`}
+        aria-label={`${category.name} kaydını düzenle`}
       >
         <Pencil />
       </Button>
@@ -293,7 +291,7 @@ function Row({
         variant="ghost"
         size="icon-sm"
         onClick={() => onDelete(tx)}
-        aria-label={`${category.name} işlemini sil`}
+        aria-label={`${category.name} kaydını sil`}
         className="hover:bg-destructive/10 hover:text-destructive"
       >
         <Trash2 />
@@ -302,7 +300,7 @@ function Row({
   );
 
   return (
-    <div className="group rounded-xl transition-colors hover:bg-accent/60">
+    <div className="group transition-colors hover:bg-accent/50">
       {/* Masaüstü: tablo satırı */}
       <div className="hidden grid-cols-[110px_minmax(0,1.2fr)_minmax(0,1.5fr)_80px_140px_76px] items-center gap-3 px-3 py-2.5 text-sm md:grid">
         <span className="tabular text-muted-foreground">{formatDate(tx.date)}</span>
