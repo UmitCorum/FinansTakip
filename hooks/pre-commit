@@ -1,0 +1,3 @@
+#!/bin/sh
+# Commit öncesi hızlı kontroller — bkz. docs/KURALLAR-GITHUB.md
+exec node "$(git rev-parse --show-toplevel)/hooks/scripts/check.mjs" pre-commit

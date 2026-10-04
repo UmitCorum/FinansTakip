@@ -1,0 +1,3 @@
+#!/bin/sh
+# Commit mesajı formatı — bkz. docs/KURALLAR-GITHUB.md (G-10)
+exec node "$(git rev-parse --show-toplevel)/hooks/scripts/check.mjs" commit-msg "$1"

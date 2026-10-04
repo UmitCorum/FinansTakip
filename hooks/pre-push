@@ -1,0 +1,4 @@
+#!/bin/sh
+# GitHub'a push öncesi tam kontrol — bkz. docs/KURALLAR-GITHUB.md
+# stdin (push edilen ref'ler) script'e aynen aktarılır.
+exec node "$(git rev-parse --show-toplevel)/hooks/scripts/check.mjs" pre-push "$@"

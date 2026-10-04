@@ -1,0 +1,29 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node hooks/scripts/check.mjs claude-edit",
+            "timeout": 60,
+            "statusMessage": "Dosya kontrol ediliyor (biçim, lint, gizli bilgi)…"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node hooks/scripts/check.mjs claude-stop",
+            "timeout": 180,
+            "statusMessage": "Proje kontrol ediliyor (tip, lint, test)…"
+          }
+        ]
+      }
+    ]
+  }
+}

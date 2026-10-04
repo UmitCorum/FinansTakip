@@ -1,0 +1,11 @@
+# Tüm metin dosyaları depoda LF olarak saklanır (Windows CRLF / Prettier uyumsuzluğunu önler — U-08)
+* text=auto eol=lf
+
+# Git hook'ları her platformda LF olmalı, aksi halde sh çalıştıramaz
+hooks/* text eol=lf
+
+# İkili dosyalar
+*.png binary
+*.jpg binary
+*.ico binary
+*.woff2 binary
